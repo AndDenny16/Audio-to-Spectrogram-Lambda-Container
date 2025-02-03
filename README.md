@@ -5,10 +5,15 @@ This project processes audio files into spectrogram images and uploads them to A
 ## Functionality
 
 - Converts base64-encoded audio files into mel spectrogram images.
-      - (225, 225,3) size
+  
+      - (225, 225) size
+  
       - Sample Rate:16000
+  
       - Audio Trimmed: top_db: 10
+  
       - n_fft=2048, hop_length=16, n_mels=64, fmin=50, fmax=350
+  
 - Uses **Librosa** for audio processing.
 - Saves spectrogram images to AWS S3.
 - Designed for deployment as an AWS Lambda function.
@@ -17,7 +22,7 @@ This project processes audio files into spectrogram images and uploads them to A
 
 ---
 
-Prerequisites
+## Prerequisites
 
 1. **AWS CLI** configured with appropriate credentials (if running locally)
 2. **Docker** installed and running.
@@ -27,13 +32,12 @@ Prerequisites
    ```plaintext
    BUCKET_NAME=<your-s3-bucket-name>
 
----
 
 ## Project Structure
 - **DockerFile**
 - **app.py**
 - **requirements.txt**
-
+- **.env file** 
 ---
 
 ## Requirements.txt
@@ -68,10 +72,20 @@ Prerequisites
 
 ## Uploading to AWS Lambda
 
-**Upload**
+**Upload 2 Options**
   - Use AWS CLI to create Lambda Container straight from Docker Image 
-  - I chose to first push Container to ECR, then create through the console
-  - 
+  - I opted to first push Container to ECR, then create through the console
+    
+    ```
+    aws ecr get-login-password --region <your-region> | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.<your-region>.amazonaws.com
+
+    aws ecr create-repository --repository-name <desired_name>
+
+    docker tag audio-to-spectrogram:latest <aws_account_id>.dkr.ecr.<your-region>.amazonaws.com/<desired_name>:latest
+
+    docker push <aws_account_id>.dkr.ecr.<your-region>.amazonaws.com/<desired_name>:latest
+
+    ```
 **IAM Role** Ensure to create an IAM Role for this container that allows write access to your S3 Bucket
 
 **API Gateway** Integrate the Lambda to an API Gateway
